@@ -57,10 +57,11 @@ Los SVG son **vectoriales**, escalan sin perder calidad (sirven igual para una t
 - **Profesional:** ábrelo en Figma, Adobe Illustrator o Inkscape y exporta a la resolución que necesites.
 
 ## Notas de diseño
-- **Armonización:** fondo fotográfico unificado en **duotono café** + retratos con **fundido suave** (las caras
-  emergen del fondo, sin recuadros duros) + foco de luz detrás de cada candidato + sombra en el texto para legibilidad.
-- **Tipografía:** los títulos usan ajuste automático (`textLength`) para no desbordarse nunca.
-- Se **eliminaron** los datos de "Informes" y redes (@) de la valla y la tarjeta, según lo solicitado.
-- La imagen de **recolectores** entregada era una página web guardada (`RECOLECTORES.html`) con miniaturas de
-  baja resolución y posibles derechos de autor, por lo que **no se usó**. Si envías una foto propia de recolectores
-  en buena resolución, se integra fácilmente.
+- **Composición por bloques de color** para máxima legibilidad y un look más llamativo.
+- **Fotos naturales** (sin opacar) en **recuadros con marco sutil y paspartú cálido** que favorece los tonos de piel.
+- Se incorporan **cafetales, Nevado del Ruiz y cafeteros** en varias piezas.
+- **Texto con interlineado seguro** (sin solapes) y títulos con ajuste automático de ancho.
+- Se **eliminaron** los datos de "Informes" y redes (@) de la valla y la tarjeta.
+- **Importante:** las fotos `assets/cafeteros.jpg` y `assets/cafetero2.jpg` se extrajeron del archivo
+  `RECOLECTORES.html` y son de **baja resolución** (placeholder). Reemplázalas por fotos propias de cafeteros
+  en alta resolución (mismo nombre en `assets/`) y vuelve a ejecutar `python3 generar.py`.
