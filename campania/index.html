@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plancha 2 · Comprometidos con los Cafeteros — Campaña</title>
+<style>
+  :root{
+    --espresso:#241410; --brown:#43271A; --gold:#E0A23B; --gold-lt:#F4CE7E;
+    --red:#C0282D; --green:#2E7D32; --cream:#FBF4E5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--espresso)}
+  header{background:linear-gradient(135deg,var(--brown),var(--espresso));color:#fff;
+    padding:48px 24px;text-align:center;border-bottom:8px solid var(--gold)}
+  header .org{letter-spacing:4px;color:var(--gold-lt);font-weight:700;font-size:15px}
+  header h1{font-size:clamp(28px,5vw,52px);margin:10px 0;line-height:1.05}
+  header h1 span{color:var(--gold-lt)}
+  header .badge{display:inline-block;background:var(--red);color:#fff;font-weight:900;
+    padding:8px 22px;border-radius:30px;margin-top:14px;letter-spacing:3px;
+    border:3px solid var(--gold-lt)}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px}
+  .note{background:#fff;border-left:6px solid var(--gold);padding:18px 22px;border-radius:10px;
+    margin:24px 0;box-shadow:0 4px 16px rgba(0,0,0,.08);font-size:15px;line-height:1.5}
+  .note b{color:var(--brown)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:28px;margin-top:28px}
+  .card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.12);
+    display:flex;flex-direction:column;transition:transform .2s}
+  .card:hover{transform:translateY(-4px)}
+  .card .thumb{background:repeating-conic-gradient(#eee 0% 25%,#f7f7f7 0% 50%) 50%/22px 22px;
+    padding:14px;display:flex;align-items:center;justify-content:center}
+  .card .thumb img{width:100%;height:auto;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  .card .meta{padding:16px 18px}
+  .card .meta h3{font-size:18px;color:var(--brown)}
+  .card .meta .dim{font-size:13px;color:#8a7b66;margin:4px 0 10px}
+  .card .meta p{font-size:14px;line-height:1.5;color:#4a4036}
+  .card .meta a{display:inline-block;margin-top:12px;background:var(--green);color:#fff;
+    text-decoration:none;font-weight:700;font-size:13px;padding:8px 16px;border-radius:8px}
+  .palette{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .sw{width:64px;height:64px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,.15);
+    display:flex;align-items:flex-end;justify-content:center;font-size:10px;color:#fff;
+    padding-bottom:4px;font-weight:700}
+  h2.sec{margin-top:40px;font-size:24px;color:var(--brown);border-bottom:3px solid var(--gold);
+    padding-bottom:8px;display:inline-block}
+  footer{background:var(--espresso);color:#cbb89a;text-align:center;padding:30px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="org">COMITÉ DEPARTAMENTAL DE CAFETEROS</div>
+  <h1>COMPROMETIDOS <span>CON LOS CAFETEROS</span></h1>
+  <div class="badge">PLANCHA 2</div>
+  <p style="margin-top:16px;color:#e9dcc4">Jhon Esneider Prieto Prieto · Principal &nbsp;|&nbsp; Nelson Ferned Orozco Castaño · Suplente</p>
+</header>
+
+<div class="wrap">
+  <h2 class="sec">Sistema de marca</h2>
+  <div class="palette">
+    <div class="sw" style="background:#241410">#241410</div>
+    <div class="sw" style="background:#43271A">#43271A</div>
+    <div class="sw" style="background:#6F4A2E">#6F4A2E</div>
+    <div class="sw" style="background:#C0282D">#C0282D</div>
+    <div class="sw" style="background:#E0A23B">#E0A23B</div>
+    <div class="sw" style="background:#2E7D32">#2E7D32</div>
+    <div class="sw" style="background:#FBF4E5;color:#43271A">#FBF4E5</div>
+  </div>
+  <div class="note">
+    <b>Concepto:</b> identidad cafetera — café tostado, rojo cereza, dorado del grano y verde de la hoja.
+    Tonos cálidos, elegantes y a la vez llamativos, que transmiten cercanía, arraigo a la tierra y prosperidad.
+    El paisaje de cafetales y el Nevado del Ruiz representan la zona y la pertenencia de la candidatura.
+  </div>
+
+  <h2 class="sec">Piezas de la campaña</h2>
+  <div class="grid" id="grid"></div>
+
+  <div class="note" style="margin-top:36px">
+    <b>Exportar para imprenta o redes:</b> cada pieza es un SVG vectorial (calidad infinita).
+    Para obtener PNG/JPG/PDF: abre el SVG en el navegador y usa "Imprimir → Guardar como PDF",
+    o ábrelo en Figma / Illustrator / Inkscape y exporta a la resolución deseada. Al ser vectorial,
+    sirve igual para una tarjeta pequeña que para una valla de varios metros.
+  </div>
+</div>
+
+<footer>
+  Campaña publicitaria · Plancha 2 «Comprometidos con los Cafeteros» · Material electoral.
+</footer>
+
+<script>
+const piezas = [
+  ["01-afiche-principal.svg","Afiche principal","1000 × 1500 (vertical)","Pieza insignia: candidatos, eslogan, Plancha 2 y paisaje cafetero."],
+  ["02-afiche-propuestas.svg","Afiche de propuestas","1000 × 1500 (vertical)","Los 5 ejes programáticos con íconos y jerarquía clara."],
+  ["03-pasacalle.svg","Pasacalle","2400 × 480 (5:1)","Banner horizontal de calle, gran legibilidad a distancia."],
+  ["04-valla.svg","Valla publicitaria","2400 × 1200 (2:1)","Gran formato: candidatos, eslogan, ejes y datos de contacto."],
+  ["05a-tarjeta-frente.svg","Tarjeta — frente","1050 × 600","Tarjeta de presentación, cara principal."],
+  ["05b-tarjeta-respaldo.svg","Tarjeta — respaldo","1050 × 600","Propuestas y datos de contacto."],
+  ["06-redes-post.svg","Redes — post","1080 × 1080","Publicación cuadrada para Instagram / Facebook."],
+  ["07-redes-historia.svg","Redes — historia","1080 × 1920","Historia vertical para Instagram / WhatsApp."],
+  ["08-volante.svg","Volante","1000 × 1414","Volante de mano con candidatos y propuestas."],
+];
+const g = document.getElementById('grid');
+piezas.forEach(([f,t,d,desc])=>{
+  g.insertAdjacentHTML('beforeend',`
+    <div class="card">
+      <div class="thumb"><img src="${f}" alt="${t}" loading="lazy"></div>
+      <div class="meta">
+        <h3>${t}</h3>
+        <div class="dim">${d}</div>
+        <p>${desc}</p>
+        <a href="${f}" target="_blank">Ver en grande ↗</a>
+      </div>
+    </div>`);
+});
+</script>
+</body>
+</html>

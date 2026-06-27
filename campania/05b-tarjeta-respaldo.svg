@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1050" height="600" viewBox="0 0 1050 600"><defs>
+  <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FBF4E5"/>
+    <stop offset="100%" stop-color="#F0E2C4"/>
+  </linearGradient>
+  <linearGradient id="gBrownDown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#241410" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#241410" stop-opacity="0.92"/>
+  </linearGradient>
+  <linearGradient id="gBrownTop" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#241410" stop-opacity="0.65"/>
+    <stop offset="60%" stop-color="#241410" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#F4CE7E"/>
+    <stop offset="100%" stop-color="#E0A23B"/>
+  </linearGradient>
+  <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#2E7D32"/>
+    <stop offset="100%" stop-color="#1B5E20"/>
+  </linearGradient>
+  <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#C0282D"/>
+    <stop offset="100%" stop-color="#8E1B20"/>
+  </linearGradient>
+  <linearGradient id="gBrownBar" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#43271A"/>
+    <stop offset="100%" stop-color="#241410"/>
+  </linearGradient>
+  <radialGradient id="gBadge" cx="38%" cy="32%" r="78%">
+    <stop offset="0%" stop-color="#D83A3F"/>
+    <stop offset="62%" stop-color="#C0282D"/>
+    <stop offset="100%" stop-color="#8E1B20"/>
+  </radialGradient>
+  <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#241410" flood-opacity="0.35"/>
+  </filter>
+  <filter id="softSmall" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#241410" flood-opacity="0.30"/>
+  </filter>
+  
+</defs><rect width="1050" height="600" fill="url(#gBrownBar)"/><rect x="0" y="0" width="1050" height="10" fill="url(#gGold)"/><rect x="0" y="590" width="1050" height="10" fill="url(#gGold)"/><g transform="translate(1060.0,130.0) scale(-0.600,0.600) rotate(-10.0)"><path d="M0,0 C 70,-8 150,-28 250,-22" stroke="#43271A" stroke-width="7" fill="none" stroke-linecap="round"/><g transform="translate(55.0,-6.0) rotate(-38.0)"><path d="M0,0 C 19.6,-15.0 50.4,-15.0 70.0,0 C 50.4,15.0 19.6,15.0 0,0 Z" fill="#2E7D32"/><path d="M2.8,0 L 64.4,0" stroke="#1B5E20" stroke-width="1.5" opacity="0.55" fill="none"/></g><g transform="translate(55.0,-6.0) rotate(28.0)"><path d="M0,0 C 18.5,-14.0 47.5,-14.0 66.0,0 C 47.5,14.0 18.5,14.0 0,0 Z" fill="#2E7D32"/><path d="M2.6,0 L 60.7,0" stroke="#1B5E20" stroke-width="1.4" opacity="0.55" fill="none"/></g><g transform="translate(120.0,-20.0) rotate(-32.0)"><path d="M0,0 C 21.3,-16.5 54.7,-16.5 76.0,0 C 54.7,16.5 21.3,16.5 0,0 Z" fill="#2E7D32"/><path d="M3.0,0 L 69.9,0" stroke="#1B5E20" stroke-width="1.7" opacity="0.55" fill="none"/></g><g transform="translate(120.0,-20.0) rotate(34.0)"><path d="M0,0 C 19.6,-15.0 50.4,-15.0 70.0,0 C 50.4,15.0 19.6,15.0 0,0 Z" fill="#2E7D32"/><path d="M2.8,0 L 64.4,0" stroke="#1B5E20" stroke-width="1.5" opacity="0.55" fill="none"/></g><g transform="translate(185.0,-26.0) rotate(-28.0)"><path d="M0,0 C 19.6,-15.0 50.4,-15.0 70.0,0 C 50.4,15.0 19.6,15.0 0,0 Z" fill="#2E7D32"/><path d="M2.8,0 L 64.4,0" stroke="#1B5E20" stroke-width="1.5" opacity="0.55" fill="none"/></g><g transform="translate(185.0,-26.0) rotate(40.0)"><path d="M0,0 C 17.9,-14.0 46.1,-14.0 64.0,0 C 46.1,14.0 17.9,14.0 0,0 Z" fill="#2E7D32"/><path d="M2.6,0 L 58.9,0" stroke="#1B5E20" stroke-width="1.4" opacity="0.55" fill="none"/></g><circle cx="238" cy="-30" r="15" fill="#C0282D"/><circle cx="238" cy="-30" r="15" fill="none" stroke="#8E1B20" stroke-width="1.80" opacity="0.5"/><ellipse cx="233.20" cy="-35.10" rx="4.50" ry="3.30" fill="#fff" opacity="0.45"/><circle cx="252" cy="-16" r="16" fill="#C0282D"/><circle cx="252" cy="-16" r="16" fill="none" stroke="#8E1B20" stroke-width="1.92" opacity="0.5"/><ellipse cx="246.88" cy="-21.44" rx="4.80" ry="3.52" fill="#fff" opacity="0.45"/><circle cx="236" cy="-8" r="14" fill="#C0282D"/><circle cx="236" cy="-8" r="14" fill="none" stroke="#8E1B20" stroke-width="1.68" opacity="0.5"/><ellipse cx="231.52" cy="-12.76" rx="4.20" ry="3.08" fill="#fff" opacity="0.45"/><circle cx="258" cy="-30" r="13" fill="#C0282D"/><circle cx="258" cy="-30" r="13" fill="none" stroke="#8E1B20" stroke-width="1.56" opacity="0.5"/><ellipse cx="253.84" cy="-34.42" rx="3.90" ry="2.86" fill="#fff" opacity="0.45"/><circle cx="248" cy="-44" r="12" fill="#C0282D"/><circle cx="248" cy="-44" r="12" fill="none" stroke="#8E1B20" stroke-width="1.44" opacity="0.5"/><ellipse cx="244.16" cy="-48.08" rx="3.60" ry="2.64" fill="#fff" opacity="0.45"/></g><text x="60" y="90" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="40" fill="#F4CE7E">NUESTRAS PROPUESTAS</text><circle cx="85" cy="160" r="22" fill="#E0A23B"/><path d="M75.1,160.0 L 82.4,167.7 L 96.0,151.2" stroke="#FFFFFF" stroke-width="4.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="125" y="169" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">Vías para el campo</text><circle cx="85" cy="222" r="22" fill="#E0A23B"/><path d="M75.1,222.0 L 82.4,229.7 L 96.0,213.2" stroke="#FFFFFF" stroke-width="4.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="125" y="231" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">Incentivos a la renovación del café</text><circle cx="85" cy="284" r="22" fill="#E0A23B"/><path d="M75.1,284.0 L 82.4,291.7 L 96.0,275.2" stroke="#FFFFFF" stroke-width="4.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="125" y="293" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">Mejores beneficiaderos</text><circle cx="85" cy="346" r="22" fill="#E0A23B"/><path d="M75.1,346.0 L 82.4,353.7 L 96.0,337.2" stroke="#FFFFFF" stroke-width="4.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="125" y="355" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">Proyectos productivos para la mujer</text><circle cx="85" cy="408" r="22" fill="#E0A23B"/><path d="M75.1,408.0 L 82.4,415.7 L 96.0,399.2" stroke="#FFFFFF" stroke-width="4.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="125" y="417" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">Defensoría del cafetero</text><g filter="url(#softSmall)"><g><circle cx="880" cy="250" r="120" fill="url(#gBadge)" stroke="#FFFFFF" stroke-width="7.2"/><circle cx="880" cy="250" r="105.6" fill="none" stroke="#F4CE7E" stroke-width="3.6" opacity="0.9"/><text x="880" y="199.6" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="31.2" fill="#F4CE7E" letter-spacing="2">PLANCHA</text><text x="880" y="312.4" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="162.0" fill="#FFFFFF">2</text></g></g><rect x="60" y="500" width="930" height="2" fill="#E0A23B" opacity="0.5"/><text x="60" y="552" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="#F4CE7E">Tel: 300 000 0000   ·   contacto@plancha2.co   ·   @Plancha2Cafeteros</text></svg>
