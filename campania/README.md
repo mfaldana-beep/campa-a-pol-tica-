@@ -36,6 +36,13 @@ Identidad cafetera: café tostado, rojo cereza, dorado del grano y verde de la h
 | Verde hoja | `#2E7D32` | Naturaleza / prosperidad |
 | Crema | `#FBF4E5` | Fondos claros |
 
+## Cómo obtener PNG para imprimir
+Abre **`exportar-png.html`** en cualquier navegador (doble clic). Lleva las 9 piezas incrustadas y te permite
+**descargar cada una (o todas) en PNG** de alta resolución con un clic. Elige 2x para imprenta.
+
+> Para gran formato (vallas, pasacalles) lo ideal es entregar el **.svg** a la imprenta: es vectorial y no pierde
+> calidad a ningún tamaño. El PNG sirve para digital, redes y formatos pequeños/medianos.
+
 ## Cómo editar / regenerar
 Todas las piezas se generan con un único script:
 ```bash
@@ -49,10 +56,11 @@ Los SVG son **vectoriales**, escalan sin perder calidad (sirven igual para una t
 - **Rápido:** abre el SVG en el navegador → Imprimir → Guardar como PDF.
 - **Profesional:** ábrelo en Figma, Adobe Illustrator o Inkscape y exporta a la resolución que necesites.
 
-## Notas
-- La imagen de **recolectores** entregada era una página web guardada (`RECOLECTORES.html`) cuyas
-  imágenes internas son miniaturas de baja resolución y con posibles derechos de autor, por lo que
-  **no se usaron**. El tema de la recolección se representa con la foto de cafetales e ilustración
-  vectorial. Si envías una foto propia de recolectores en buena resolución, se integra fácilmente.
-- En la **valla** y la **tarjeta** los datos de contacto (teléfono, correo, redes) son provisionales
-  y se cambian en `generar.py`.
+## Notas de diseño
+- **Armonización:** fondo fotográfico unificado en **duotono café** + retratos con **fundido suave** (las caras
+  emergen del fondo, sin recuadros duros) + foco de luz detrás de cada candidato + sombra en el texto para legibilidad.
+- **Tipografía:** los títulos usan ajuste automático (`textLength`) para no desbordarse nunca.
+- Se **eliminaron** los datos de "Informes" y redes (@) de la valla y la tarjeta, según lo solicitado.
+- La imagen de **recolectores** entregada era una página web guardada (`RECOLECTORES.html`) con miniaturas de
+  baja resolución y posibles derechos de autor, por lo que **no se usó**. Si envías una foto propia de recolectores
+  en buena resolución, se integra fácilmente.

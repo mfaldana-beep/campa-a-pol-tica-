@@ -1,26 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Generador de la campaña publicitaria "PLANCHA 2 - COMPROMETIDOS CON LOS CAFETEROS"
-Candidatos: Jhon Esneider Prieto Prieto (Principal) y Nelson Ferned Orozco Castaño (Suplente)
-Comité Departamental de Cafeteros.
+Generador de la campana publicitaria "PLANCHA 2 - COMPROMETIDOS CON LOS CAFETEROS"
+Candidatos: Jhon Esneider Prieto Prieto (Principal) y Nelson Ferned Orozco Castano (Suplente).
+Comite Departamental de Cafeteros.
 
-Produce piezas en SVG vectorial (escalable, listo para imprenta y redes) que incorporan
-las fotos reales de los candidatos, la foto de cafetales y el Nevado del Ruiz, además de
-ilustración vectorial cafetera (ramas, cerezas, recolección, montaña).
+Piezas en SVG vectorial de alta gama:
+ - Fondo fotografico unificado con tratamiento DUOTONO cafe (armonia cromatica total).
+ - Retratos con FUNDIDO suave en los bordes (las caras emergen, sin recuadros duros).
+ - Foco de luz detras de cada candidato + sombra de texto para legibilidad.
+ - Ajuste automatico de texto (textLength) para que ningun titulo se desborde.
 """
 import base64, os, html, xml.dom.minidom as minidom
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.dirname(BASE)  # carpeta del repo con las imagenes originales
+SRC = os.path.dirname(BASE)
 OUT = BASE
 
 # --------------------------------------------------------------------------------------
-# 1. RECURSOS (fotos reales -> data URI base64)
+# 1. RECURSOS
 # --------------------------------------------------------------------------------------
 def data_uri(path, mime="image/jpeg"):
     with open(path, "rb") as f:
-        b = base64.b64encode(f.read()).decode("ascii")
-    return f"data:{mime};base64,{b}"
+        return f"data:{mime};base64," + base64.b64encode(f.read()).decode("ascii")
 
 IMG = {
     "cafetales": data_uri(os.path.join(SRC, "CAFETALES.jpg")),
@@ -30,632 +31,528 @@ IMG = {
 }
 
 # --------------------------------------------------------------------------------------
-# 2. SISTEMA DE MARCA
+# 2. MARCA
 # --------------------------------------------------------------------------------------
 C = {
-    "espresso": "#241410",   # café muy oscuro (fondos/typo)
-    "brown":    "#43271A",   # café
-    "coffee":   "#6F4A2E",   # café medio
-    "red":      "#C0282D",   # rojo cereza (acento llamativo)
-    "red_dark": "#8E1B20",
-    "gold":     "#E0A23B",   # dorado tostado
-    "gold_lt":  "#F4CE7E",   # dorado claro
-    "green":    "#2E7D32",   # verde hoja
-    "green_dk": "#1B5E20",
-    "cream":    "#FBF4E5",   # crema fondo
-    "cream2":   "#F0E2C4",
-    "white":    "#FFFFFF",
+    "espresso": "#22130C", "brown": "#43271A", "coffee": "#6F4A2E", "caramel": "#A6703F",
+    "red": "#C32026", "red_dark": "#8C161B",
+    "gold": "#E3A53C", "gold_lt": "#F6D488", "gold_dk": "#B97E26",
+    "green": "#2F7D34", "green_dk": "#1C5A23",
+    "cream": "#FBF3E2", "cream2": "#F1E2C4", "white": "#FFFFFF",
 }
-
 SLOGAN = "COMPROMETIDOS CON LOS CAFETEROS"
 ORG = "COMITÉ DEPARTAMENTAL DE CAFETEROS"
-PLANCHA = "PLANCHA 2"
+LEMA = "POR UNOS CAFETEROS PRÓSPEROS"
 
-CANDIDATOS = {
-    "principal": {"nombre": "JHON ESNEIDER PRIETO PRIETO", "rol": "PRINCIPAL", "img": "jhon"},
-    "suplente":  {"nombre": "NELSON FERNED OROZCO CASTAÑO", "rol": "SUPLENTE", "img": "nelson"},
+CAND = {
+    "principal": {"nombre": "JHON ESNEIDER PRIETO PRIETO", "corto": "JHON E. PRIETO", "rol": "PRINCIPAL", "img": "jhon"},
+    "suplente":  {"nombre": "NELSON FERNED OROZCO CASTAÑO", "corto": "NELSON F. OROZCO", "rol": "SUPLENTE", "img": "nelson"},
 }
-
 PROPUESTAS = [
-    ("VÍAS PARA EL CAMPO", "Buenas vías de comunicación que conecten nuestras veredas y saquen el café a tiempo."),
-    ("RENOVACIÓN DEL CAFÉ", "Mejores incentivos por la renovación de cafetales para cosechas más productivas."),
-    ("BENEFICIADEROS", "Mejoramiento y construcción de beneficiaderos para un café de mayor calidad."),
-    ("MUJER CAFETERA", "Proyectos productivos para las mujeres del campo y su autonomía económica."),
-    ("DEFENSORÍA DEL CAFETERO", "Una defensoría que vele por los derechos y el bienestar de cada caficultor."),
+    ("VÍAS PARA EL CAMPO", "Vías de comunicación que conecten las veredas y saquen el café a tiempo."),
+    ("RENOVACIÓN DEL CAFÉ", "Mejores incentivos por la renovación de cafetales y cosechas productivas."),
+    ("BENEFICIADEROS", "Mejoramiento y construcción de beneficiaderos para un café de calidad."),
+    ("MUJER CAFETERA", "Proyectos productivos para las mujeres del campo y su autonomía."),
+    ("DEFENSORÍA DEL CAFETERO", "Una defensoría que vele por los derechos de cada caficultor."),
 ]
+
+HEAVY = "'Arial Black','Helvetica Neue',Arial,sans-serif"
+BOLD = "'Helvetica Neue',Arial,sans-serif"
 
 def esc(t):
     return html.escape(str(t), quote=True)
 
 # --------------------------------------------------------------------------------------
-# 3. MOTIVOS VECTORIALES (ilustración cafetera)
+# 3. TEXTO QUE NUNCA SE DESBORDA
 # --------------------------------------------------------------------------------------
-def cherry(cx, cy, r, color=None):
-    color = color or C["red"]
-    return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{color}"/>'
-            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{C["red_dark"]}" stroke-width="{r*0.12:.2f}" opacity="0.5"/>'
-            f'<ellipse cx="{cx-r*0.32:.2f}" cy="{cy-r*0.34:.2f}" rx="{r*0.30:.2f}" ry="{r*0.22:.2f}" fill="#fff" opacity="0.45"/>')
+def T(x, y, text, size, max_w=None, anchor="start", weight="900",
+      fill="#000", family=HEAVY, spacing=0.0, opacity=None, flt=None):
+    factor = 0.64 if weight in ("900", "800") else 0.55
+    est = len(text) * size * factor + max(0, len(text) - 1) * spacing
+    extra = ""
+    if max_w and est > max_w:
+        extra = f' textLength="{max_w:.0f}" lengthAdjust="spacingAndGlyphs"'
+    sp = f' letter-spacing="{spacing}"' if spacing else ""
+    op = f' opacity="{opacity}"' if opacity is not None else ""
+    fl = f' filter="url(#{flt})"' if flt else ""
+    return (f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-family="{family}" '
+            f'font-weight="{weight}" font-size="{size:.1f}" fill="{fill}"{sp}{op}{fl}{extra}>{esc(text)}</text>')
 
-def leaf(cx, cy, L, W, angle, color=None):
-    color = color or C["green"]
-    h = W / 2.0
-    path = f'M0,0 C {L*0.28:.1f},{-h:.1f} {L*0.72:.1f},{-h:.1f} {L:.1f},0 C {L*0.72:.1f},{h:.1f} {L*0.28:.1f},{h:.1f} 0,0 Z'
-    return (f'<g transform="translate({cx:.1f},{cy:.1f}) rotate({angle:.1f})">'
-            f'<path d="{path}" fill="{color}"/>'
-            f'<path d="M{L*0.04:.1f},0 L {L*0.92:.1f},0" stroke="{C["green_dk"]}" stroke-width="{max(W*0.05,1):.1f}" opacity="0.55" fill="none"/>'
-            f'</g>')
-
-def sprig(x, y, scale=1.0, angle=0.0, flip=False, leaf_color=None, cherry_color=None):
-    """Rama de café decorativa (sprig). Dibujada alrededor del origen y transformada."""
-    lc = leaf_color or C["green"]
-    cc = cherry_color or C["red"]
-    fl = -1 if flip else 1
-    p = [f'<g transform="translate({x:.1f},{y:.1f}) scale({scale*fl:.3f},{scale:.3f}) rotate({angle:.1f})">']
-    # tallo
-    p.append(f'<path d="M0,0 C 70,-8 150,-28 250,-22" stroke="{C["brown"]}" stroke-width="7" '
-             f'fill="none" stroke-linecap="round"/>')
-    # hojas a lo largo del tallo
-    for (lx, ly, ll, lw, la) in [(55,-6,70,30,-38),(55,-6,66,28,28),(120,-20,76,33,-32),
-                                  (120,-20,70,30,34),(185,-26,70,30,-28),(185,-26,64,28,40)]:
-        p.append(leaf(lx, ly, ll, lw, la, lc))
-    # racimo de cerezas al final
-    for (chx, chy, chr_) in [(238,-30,15),(252,-16,16),(236,-8,14),(258,-30,13),(248,-44,12)]:
-        p.append(cherry(chx, chy, chr_, cc))
-    p.append('</g>')
-    return "".join(p)
-
-def bean(cx, cy, r, angle=0, color=None):
-    color = color or C["brown"]
-    return (f'<g transform="translate({cx:.1f},{cy:.1f}) rotate({angle:.1f})">'
-            f'<ellipse cx="0" cy="0" rx="{r:.1f}" ry="{r*0.66:.1f}" fill="{color}"/>'
-            f'<path d="M{-r*0.7:.1f},{-r*0.28:.1f} C {-r*0.1:.1f},{r*0.18:.1f} {r*0.1:.1f},{-r*0.18:.1f} {r*0.7:.1f},{r*0.28:.1f}" '
-            f'stroke="{C["espresso"]}" stroke-width="{max(r*0.12,1):.1f}" fill="none" opacity="0.7"/>'
-            f'</g>')
-
-def mountain(x, y, w, h, body=None, snow="#FFFFFF", opacity=1.0):
-    """Silueta del Nevado del Ruiz con casquete de nieve."""
-    body = body or C["coffee"]
-    return (f'<g transform="translate({x:.1f},{y:.1f})" opacity="{opacity}">'
-            f'<path d="M0,{h:.1f} L {w*0.30:.1f},{h*0.18:.1f} L {w*0.42:.1f},{h*0.40:.1f} '
-            f'L {w*0.55:.1f},{h*0.06:.1f} L {w*0.70:.1f},{h*0.42:.1f} L {w*0.82:.1f},{h*0.24:.1f} L {w:.1f},{h:.1f} Z" fill="{body}"/>'
-            f'<path d="M {w*0.30:.1f},{h*0.18:.1f} L {w*0.36:.1f},{h*0.30:.1f} L {w*0.40:.1f},{h*0.24:.1f} '
-            f'L {w*0.44:.1f},{h*0.34:.1f} L {w*0.49:.1f},{h*0.22:.1f} L {w*0.55:.1f},{h*0.06:.1f} '
-            f'L {w*0.62:.1f},{h*0.26:.1f} L {w*0.66:.1f},{h*0.20:.1f} L {w*0.70:.1f},{h*0.42:.1f} '
-            f'L {w*0.74:.1f},{h*0.34:.1f} L {w*0.78:.1f},{h*0.40:.1f} L {w*0.82:.1f},{h*0.24:.1f} '
-            f'L {w*0.30:.1f},{h*0.18:.1f} Z" fill="{snow}" opacity="0.92"/>'
-            f'</g>')
-
-def check_icon(cx, cy, r, bg=None, fg="#FFFFFF"):
-    bg = bg or C["green"]
-    return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{bg}"/>'
-            f'<path d="M{cx-r*0.45:.1f},{cy:.1f} L {cx-r*0.12:.1f},{cy+r*0.35:.1f} L {cx+r*0.5:.1f},{cy-r*0.4:.1f}" '
-            f'stroke="{fg}" stroke-width="{r*0.22:.1f}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
-
-def plancha_badge(cx, cy, r):
-    """Sello circular grande con el numero 2."""
-    return (
-        f'<g>'
-        f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="url(#gBadge)" stroke="{C["white"]}" stroke-width="{r*0.06:.1f}"/>'
-        f'<circle cx="{cx}" cy="{cy}" r="{r*0.88:.1f}" fill="none" stroke="{C["gold_lt"]}" stroke-width="{r*0.03:.1f}" opacity="0.9"/>'
-        f'<text x="{cx}" y="{cy-r*0.42:.1f}" text-anchor="middle" font-family="Arial, sans-serif" '
-        f'font-weight="700" font-size="{r*0.26:.1f}" fill="{C["gold_lt"]}" letter-spacing="2">PLANCHA</text>'
-        f'<text x="{cx}" y="{cy+r*0.52:.1f}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" '
-        f'font-weight="900" font-size="{r*1.35:.1f}" fill="{C["white"]}">2</text>'
-        f'</g>'
-    )
-
-# --------------------------------------------------------------------------------------
-# 4. UTILIDADES SVG
-# --------------------------------------------------------------------------------------
-def svg_open(w, h):
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-            f'width="{w}" height="{h}" viewBox="0 0 {w} {h}">')
-
-def image_clipped(img_key, x, y, w, h, clip_id, radius=0, shape="rect", preserve='xMidYMid slice'):
-    """Coloca una foto recortada dentro de un rect redondeado o un circulo."""
-    if shape == "circle":
-        clip = f'<clipPath id="{clip_id}"><circle cx="{x+w/2:.1f}" cy="{y+h/2:.1f}" r="{min(w,h)/2:.1f}"/></clipPath>'
-    else:
-        clip = f'<clipPath id="{clip_id}"><rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{radius:.1f}" ry="{radius:.1f}"/></clipPath>'
-    img = (f'<image href="{IMG[img_key]}" xlink:href="{IMG[img_key]}" x="{x:.1f}" y="{y:.1f}" '
-           f'width="{w:.1f}" height="{h:.1f}" preserveAspectRatio="{preserve}" clip-path="url(#{clip_id})"/>')
-    return clip, img
+def two_lines(name):
+    w = name.split()
+    if len(w) <= 1:
+        return [name, ""]
+    mid = (len(w) + 1) // 2
+    return [" ".join(w[:mid]), " ".join(w[mid:])]
 
 def multiline(text, max_chars):
-    words = text.split()
-    lines, cur = [], ""
-    for w in words:
+    out, cur = [], ""
+    for w in text.split():
         if len(cur) + len(w) + 1 <= max_chars:
             cur = (cur + " " + w).strip()
         else:
-            lines.append(cur); cur = w
+            out.append(cur); cur = w
     if cur:
-        lines.append(cur)
-    return lines
-
-def save(name, content):
-    path = os.path.join(OUT, name)
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(content)
-    # validar XML
-    minidom.parseString(content.encode("utf-8"))
-    print(f"  OK {name} ({len(content)//1024} KB)")
-    return path
-
-
+        out.append(cur)
+    return out
 
 # --------------------------------------------------------------------------------------
-# 5. DEFS COMUNES (degradados, filtros)
+# 4. MOTIVOS VECTORIALES
 # --------------------------------------------------------------------------------------
-def build_defs(extra=""):
+def cherry(cx, cy, r, color=None):
+    color = color or C["red"]
+    return (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{color}"/>'
+            f'<ellipse cx="{cx-r*0.3:.1f}" cy="{cy-r*0.32:.1f}" rx="{r*0.3:.1f}" ry="{r*0.22:.1f}" fill="#fff" opacity="0.45"/>')
+
+def leaf(cx, cy, L, W, ang, color=None):
+    color = color or C["green"]
+    h = W / 2
+    d = f'M0,0 C {L*0.28:.1f},{-h:.1f} {L*0.72:.1f},{-h:.1f} {L:.1f},0 C {L*0.72:.1f},{h:.1f} {L*0.28:.1f},{h:.1f} 0,0 Z'
+    return (f'<g transform="translate({cx:.1f},{cy:.1f}) rotate({ang:.1f})">'
+            f'<path d="{d}" fill="{color}"/>'
+            f'<path d="M{L*0.05:.1f},0 L{L*0.9:.1f},0" stroke="{C["green_dk"]}" stroke-width="{max(W*0.05,1):.1f}" opacity="0.5"/></g>')
+
+def sprig(x, y, scale=1.0, ang=0.0, flip=False):
+    fl = -1 if flip else 1
+    p = [f'<g transform="translate({x:.1f},{y:.1f}) scale({scale*fl:.3f},{scale:.3f}) rotate({ang:.1f})" opacity="0.96">']
+    p.append(f'<path d="M0,0 C 70,-8 150,-28 250,-22" stroke="{C["brown"]}" stroke-width="7" fill="none" stroke-linecap="round"/>')
+    for lx, ly, ll, lw, la in [(55,-6,70,30,-38),(55,-6,66,28,28),(120,-20,76,33,-32),
+                               (120,-20,70,30,34),(185,-26,70,30,-28),(185,-26,64,28,40)]:
+        p.append(leaf(lx, ly, ll, lw, la))
+    for chx, chy, chr_ in [(238,-30,15),(252,-16,16),(236,-8,14),(258,-30,13),(248,-44,12)]:
+        p.append(cherry(chx, chy, chr_))
+    p.append('</g>')
+    return "".join(p)
+
+def bean(cx, cy, r, ang=0, color=None):
+    color = color or C["gold"]
+    return (f'<g transform="translate({cx:.1f},{cy:.1f}) rotate({ang:.1f})">'
+            f'<ellipse rx="{r:.1f}" ry="{r*0.64:.1f}" fill="{color}"/>'
+            f'<path d="M{-r*0.7:.1f},{-r*0.26:.1f} C {-r*0.1:.1f},{r*0.16:.1f} {r*0.1:.1f},{-r*0.16:.1f} {r*0.7:.1f},{r*0.26:.1f}" '
+            f'stroke="{C["espresso"]}" stroke-width="{max(r*0.12,1):.1f}" fill="none" opacity="0.7"/></g>')
+
+def check(cx, cy, r, bg=None, fg="#fff"):
+    bg = bg or C["green"]
+    return (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{bg}"/>'
+            f'<path d="M{cx-r*0.45:.1f},{cy:.1f} L{cx-r*0.1:.1f},{cy+r*0.35:.1f} L{cx+r*0.5:.1f},{cy-r*0.4:.1f}" '
+            f'stroke="{fg}" stroke-width="{r*0.22:.1f}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+
+def badge(cx, cy, r, flt="soft"):
+    return (f'<g filter="url(#{flt})">'
+            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="url(#gBadge)"/>'
+            f'<circle cx="{cx}" cy="{cy}" r="{r*0.9:.1f}" fill="none" stroke="{C["gold_lt"]}" stroke-width="{r*0.045:.1f}"/>'
+            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{C["white"]}" stroke-width="{r*0.05:.1f}"/></g>'
+            + T(cx, cy - r*0.36, "PLANCHA", r*0.27, r*1.4, "middle", "800", C["gold_lt"], BOLD, 3)
+            + T(cx, cy + r*0.54, "2", r*1.45, None, "middle", "900", C["white"], HEAVY))
+
+def nevado(cx, cy, r, mid, ring=True):
+    d = (f'<image href="{IMG["nevado"]}" xlink:href="{IMG["nevado"]}" x="{cx-r:.1f}" y="{cy-r:.1f}" '
+         f'width="{2*r:.1f}" height="{2*r:.1f}" preserveAspectRatio="xMidYMid slice" '
+         f'clip-path="url(#{mid})" filter="url(#duo)"/>')
+    out = (f'<g filter="url(#soft)"><circle cx="{cx}" cy="{cy}" r="{r+r*0.06:.1f}" fill="{C["cream"]}"/></g>' + d)
+    if ring:
+        out += f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="url(#gGold)" stroke-width="{r*0.08:.1f}"/>'
+    return out, f'<clipPath id="{mid}"><circle cx="{cx}" cy="{cy}" r="{r}"/></clipPath>'
+
+# --------------------------------------------------------------------------------------
+# 5. RETRATO CON FUNDIDO (la cara emerge del fondo)
+# --------------------------------------------------------------------------------------
+def candidate(cx, top, box_w, key, defs, name_size=26, role_size=20,
+              dark_text=False, spotlight=True, ratio=0.852, show_name=True):
+    box_h = box_w / ratio
+    cy = top + box_h / 2
+    x = cx - box_w / 2
+    s = []
+    if spotlight:
+        s.append(f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{box_w*0.66:.1f}" ry="{box_h*0.6:.1f}" fill="url(#gSpot)"/>')
+    mid = f"mk{key}{int(cx)}{int(top)}"
+    defs.append(f'<mask id="{mid}" maskContentUnits="userSpaceOnUse">'
+                f'<rect x="{x:.1f}" y="{top:.1f}" width="{box_w:.1f}" height="{box_h:.1f}" fill="url(#gFeather)"/></mask>')
+    img = IMG[CAND[key]["img"]]
+    s.append(f'<image href="{img}" xlink:href="{img}" x="{x:.1f}" y="{top:.1f}" width="{box_w:.1f}" '
+             f'height="{box_h:.1f}" preserveAspectRatio="xMidYMid slice" mask="url(#{mid})"/>')
+    cand = CAND[key]
+    rc = C["red"] if key == "principal" else C["green"]
+    py = cy + box_h * 0.46
+    if not show_name:
+        pw0 = role_size * len(cand["rol"]) * 0.66 + 46
+        ph0 = role_size + 16
+        s.append(f'<g filter="url(#soft)"><rect x="{cx-pw0/2:.1f}" y="{py:.1f}" width="{pw0:.1f}" height="{ph0:.1f}" rx="{ph0/2:.1f}" fill="{rc}"/></g>')
+        s.append(T(cx, py + role_size + 2, cand["rol"], role_size, pw0 - 18, "middle", "800", "#fff", BOLD, 1.5))
+        return "".join(s)
+    pw = role_size * len(cand["rol"]) * 0.66 + 46
+    ph = role_size + 18
+    s.append(f'<g filter="url(#soft)"><rect x="{cx-pw/2:.1f}" y="{py:.1f}" width="{pw:.1f}" height="{ph:.1f}" '
+             f'rx="{ph/2:.1f}" fill="{rc}"/></g>')
+    s.append(T(cx, py + role_size + 3, cand["rol"], role_size, pw - 18, "middle", "800", "#fff", BOLD, 1.5))
+    l1, l2 = two_lines(cand["nombre"])
+    col = C["espresso"] if dark_text else "#fff"
+    fl = None if dark_text else "txt"
+    ny = py + ph + name_size + 6
+    s.append(T(cx, ny, l1, name_size, box_w * 1.25, "middle", "900", col, HEAVY, 0, None, fl))
+    s.append(T(cx, ny + name_size + 4, l2, name_size, box_w * 1.25, "middle", "900", col, HEAVY, 0, None, fl))
+    return "".join(s)
+
+# --------------------------------------------------------------------------------------
+# 6. DEFS COMUNES
+# --------------------------------------------------------------------------------------
+def defs(extra=""):
     return f'''<defs>
   <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{C['cream']}"/>
-    <stop offset="100%" stop-color="{C['cream2']}"/>
-  </linearGradient>
-  <linearGradient id="gBrownDown" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{C['espresso']}" stop-opacity="0"/>
-    <stop offset="100%" stop-color="{C['espresso']}" stop-opacity="0.92"/>
-  </linearGradient>
-  <linearGradient id="gBrownTop" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{C['espresso']}" stop-opacity="0.65"/>
-    <stop offset="60%" stop-color="{C['espresso']}" stop-opacity="0"/>
-  </linearGradient>
+    <stop offset="0" stop-color="{C['cream']}"/><stop offset="1" stop-color="{C['cream2']}"/></linearGradient>
   <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{C['gold_lt']}"/>
-    <stop offset="100%" stop-color="{C['gold']}"/>
-  </linearGradient>
+    <stop offset="0" stop-color="{C['gold_lt']}"/><stop offset="1" stop-color="{C['gold']}"/></linearGradient>
   <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{C['green']}"/>
-    <stop offset="100%" stop-color="{C['green_dk']}"/>
-  </linearGradient>
+    <stop offset="0" stop-color="{C['green']}"/><stop offset="1" stop-color="{C['green_dk']}"/></linearGradient>
   <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{C['red']}"/>
-    <stop offset="100%" stop-color="{C['red_dark']}"/>
-  </linearGradient>
-  <linearGradient id="gBrownBar" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{C['brown']}"/>
-    <stop offset="100%" stop-color="{C['espresso']}"/>
-  </linearGradient>
-  <radialGradient id="gBadge" cx="38%" cy="32%" r="78%">
-    <stop offset="0%" stop-color="#D83A3F"/>
-    <stop offset="62%" stop-color="{C['red']}"/>
-    <stop offset="100%" stop-color="{C['red_dark']}"/>
-  </radialGradient>
-  <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
-    <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="{C['espresso']}" flood-opacity="0.35"/>
+    <stop offset="0" stop-color="{C['red']}"/><stop offset="1" stop-color="{C['red_dark']}"/></linearGradient>
+  <linearGradient id="gBrown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="{C['brown']}"/><stop offset="1" stop-color="{C['espresso']}"/></linearGradient>
+  <radialGradient id="gBadge" cx="38%" cy="32%" r="80%">
+    <stop offset="0" stop-color="#DA3A40"/><stop offset="60%" stop-color="{C['red']}"/>
+    <stop offset="100%" stop-color="{C['red_dark']}"/></radialGradient>
+  <radialGradient id="gSpot" cx="50%" cy="46%" r="62%">
+    <stop offset="0" stop-color="{C['espresso']}" stop-opacity="0.86"/>
+    <stop offset="55%" stop-color="{C['espresso']}" stop-opacity="0.5"/>
+    <stop offset="100%" stop-color="{C['espresso']}" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gFeather" cx="50%" cy="44%" r="60%">
+    <stop offset="0" stop-color="#fff"/><stop offset="60%" stop-color="#fff"/>
+    <stop offset="100%" stop-color="#000"/></radialGradient>
+  <linearGradient id="gVeil" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="{C['espresso']}" stop-opacity="0.62"/>
+    <stop offset="32%" stop-color="{C['espresso']}" stop-opacity="0.18"/>
+    <stop offset="62%" stop-color="{C['espresso']}" stop-opacity="0.30"/>
+    <stop offset="100%" stop-color="{C['espresso']}" stop-opacity="0.9"/></linearGradient>
+  <filter id="duo" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values=".21 .72 .07 0 0 .21 .72 .07 0 0 .21 .72 .07 0 0 0 0 0 1 0"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.13 0.62 0.97"/>
+      <feFuncG type="table" tableValues="0.08 0.40 0.85"/>
+      <feFuncB type="table" tableValues="0.05 0.19 0.56"/></feComponentTransfer>
   </filter>
-  <filter id="softSmall" x="-30%" y="-30%" width="160%" height="160%">
-    <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="{C['espresso']}" flood-opacity="0.30"/>
-  </filter>
+  <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+    <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="{C['espresso']}" flood-opacity="0.4"/></filter>
+  <filter id="txt" x="-25%" y="-25%" width="150%" height="150%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#160c07" flood-opacity="0.75"/></filter>
   {extra}
 </defs>'''
 
-def two_lines(name):
-    words = name.split()
-    if len(words) <= 1:
-        return [name, ""]
-    mid = (len(words) + 1) // 2
-    return [" ".join(words[:mid]), " ".join(words[mid:])]
+def bg_duo(W, H, veil=True):
+    """Fondo fotografico de cafetales con duotono cafe + velo para legibilidad."""
+    s = [f'<rect width="{W}" height="{H}" fill="{C["espresso"]}"/>',
+         f'<image href="{IMG["cafetales"]}" xlink:href="{IMG["cafetales"]}" x="0" y="0" width="{W}" '
+         f'height="{H}" preserveAspectRatio="xMidYMid slice" filter="url(#duo)"/>']
+    if veil:
+        s.append(f'<rect width="{W}" height="{H}" fill="url(#gVeil)"/>')
+    return "".join(s)
 
-def nevado_medallion(cx, cy, r, clip_id, label=True):
-    clip = f'<clipPath id="{clip_id}"><circle cx="{cx}" cy="{cy}" r="{r}"/></clipPath>'
-    out = (f'<g filter="url(#softSmall)">'
-           f'<circle cx="{cx}" cy="{cy}" r="{r+6}" fill="{C["white"]}"/>'
-           f'<image href="{IMG["nevado"]}" xlink:href="{IMG["nevado"]}" x="{cx-r:.1f}" y="{cy-r:.1f}" '
-           f'width="{2*r:.1f}" height="{2*r:.1f}" preserveAspectRatio="xMidYMid slice" clip-path="url(#{clip_id})"/>'
-           f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="url(#gGold)" stroke-width="{r*0.10:.1f}"/>'
-           f'</g>')
-    if label:
-        out += (f'<g transform="translate({cx},{cy+r+22})">'
-                f'<rect x="-78" y="-15" width="156" height="30" rx="15" fill="{C["espresso"]}"/>'
-                f'<text x="0" y="6" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" '
-                f'font-size="14" letter-spacing="1.5" fill="{C["gold_lt"]}">NEVADO DEL RUIZ</text></g>')
-    return clip, out
+def head(W, h=70):
+    return (f'<rect x="0" y="0" width="{W}" height="{h}" fill="{C["espresso"]}" opacity="0.55"/>'
+            + T(W/2, h*0.64, ORG, h*0.34, W*0.9, "middle", "800", C["gold_lt"], BOLD, 4)
+            + f'<rect x="0" y="{h}" width="{W}" height="{max(h*0.08,5):.0f}" fill="url(#gGold)"/>')
 
-# --------------------------------------------------------------------------------------
-# 6. PIEZA: AFICHE PRINCIPAL  (1000 x 1500)
-# --------------------------------------------------------------------------------------
+def cta(W, y, hgt, line1, line2=None):
+    s = [f'<rect x="0" y="{y-6}" width="{W}" height="6" fill="url(#gGold)"/>',
+         f'<rect x="0" y="{y}" width="{W}" height="{hgt}" fill="url(#gBrown)"/>']
+    if line2:
+        s.append(T(W/2, y + hgt*0.46, line1, hgt*0.34, W*0.92, "middle", "900", C["gold_lt"], HEAVY))
+        s.append(T(W/2, y + hgt*0.82, line2, hgt*0.22, W*0.8, "middle", "700", "#fff", BOLD, 3))
+    else:
+        s.append(T(W/2, y + hgt*0.66, line1, hgt*0.44, W*0.92, "middle", "900", C["gold_lt"], HEAVY))
+    return "".join(s)
+
+def save(name, content):
+    with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+        f.write(content)
+    minidom.parseString(content.encode("utf-8"))
+    print(f"  OK {name} ({len(content)//1024} KB)")
+
+def svg(W, H):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+            f'width="{W}" height="{H}" viewBox="0 0 {W} {H}">')
+
+
+
+# ======================================================================================
+# PIEZAS
+# ======================================================================================
 def afiche_principal():
     W, H = 1000, 1500
-    # clips de fotos
-    clip_hero, img_hero = image_clipped("cafetales", 0, 74, W, 500, "clipHero", 0)
-    nev_clip, nev = nevado_medallion(150, 540, 72, "clipNevA")
-
-    # tarjetas de candidatos
-    cards = []
-    card_defs = []
-    cw, ph = 392, 452
-    positions = [("principal", 70), ("suplente", 538)]
-    for key, cx in positions:
-        cand = CANDIDATOS[key]
-        py = 792
-        cid = f"clipCand_{key}"
-        clip, img = image_clipped(cand["img"], cx, py, cw, ph, cid, 22)
-        card_defs.append(clip)
-        l1, l2 = two_lines(cand["nombre"])
-        rolecolor = C["red"] if key == "principal" else C["green"]
-        cards.append(f'''
-    <g filter="url(#soft)">
-      <rect x="{cx-6}" y="{py-6}" width="{cw+12}" height="{ph+150}" rx="26" fill="{C['white']}"/>
-    </g>
-    {img}
-    <rect x="{cx}" y="{py}" width="{cw}" height="{ph}" rx="22" fill="none" stroke="{C['white']}" stroke-width="4"/>
-    <rect x="{cx}" y="{py+ph}" width="{cw}" height="150" fill="url(#gBrownBar)"/>
-    <rect x="{cx}" y="{py+ph}" width="{cw}" height="150" rx="0" fill="none"/>
-    <g transform="translate({cx+cw/2},{py+ph})">
-      <rect x="-92" y="-22" width="184" height="40" rx="20" fill="{rolecolor}"/>
-      <text x="0" y="5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="20" letter-spacing="2" fill="#fff">{esc(cand['rol'])}</text>
-    </g>
-    <text x="{cx+cw/2}" y="{py+ph+72}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="26" fill="#fff">{esc(l1)}</text>
-    <text x="{cx+cw/2}" y="{py+ph+108}" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="26" fill="#fff">{esc(l2)}</text>
-    ''')
-
-    extra = clip_hero + nev_clip + "".join(card_defs)
-    s = []
-    s.append(svg_open(W, H))
-    s.append(build_defs(extra))
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    # hero
-    s.append(img_hero)
-    s.append(f'<rect x="0" y="74" width="{W}" height="500" fill="url(#gBrownTop)"/>')
-    s.append(f'<rect x="0" y="360" width="{W}" height="214" fill="url(#gBrownDown)"/>')
-    # ribbon superior
-    s.append(f'<rect x="0" y="0" width="{W}" height="74" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="26" letter-spacing="4" fill="#fff">{esc(ORG)}</text>')
-    s.append(f'<rect x="0" y="74" width="{W}" height="7" fill="url(#gGold)"/>')
-    # sprigs decorativos sobre el hero
-    s.append(sprig(15, 150, scale=0.8, angle=8))
-    s.append(sprig(W-15, 130, scale=0.85, angle=-6, flip=True))
-    # badge plancha 2
-    s.append(f'<g filter="url(#soft)">{plancha_badge(845, 200, 112)}</g>')
-    # medallon nevado
-    s.append(nev)
-    # bloque titular
-    s.append(f'<text x="{W/2}" y="636" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="30" letter-spacing="3" fill="{C["green_dk"]}">POR UNOS CAFETEROS PRÓSPEROS</text>')
-    s.append(f'<text x="{W/2}" y="706" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="74" fill="{C["espresso"]}">COMPROMETIDOS</text>')
-    s.append(f'<text x="{W/2}" y="772" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="58" fill="{C["red"]}">CON LOS CAFETEROS</text>')
-    # subrayado dorado
-    s.append(f'<rect x="{W/2-180}" y="724" width="360" height="6" rx="3" fill="url(#gGold)"/>')
-    # tarjetas
-    s.append("".join(cards))
-    # franja inferior CTA
-    s.append(f'<rect x="0" y="1410" width="{W}" height="90" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="1404" width="{W}" height="6" fill="url(#gGold)"/>')
-    s.append(bean(60, 1455, 22, 20, C["gold"]))
-    s.append(bean(940, 1455, 22, -20, C["gold"]))
-    s.append(f'<text x="{W/2}" y="1448" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="{C["gold_lt"]}">TU VOTO, NUESTRO COMPROMISO</text>')
-    s.append(f'<text x="{W/2}" y="1482" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="22" letter-spacing="3" fill="#fff">MARCA LA PLANCHA 2</text>')
-    s.append('</svg>')
-    return save("01-afiche-principal.svg", "".join(s))
+    d = []
+    s = [svg(W, H)]
+    body = [bg_duo(W, H), head(W, 70)]
+    body.append(badge(835, 208, 108))
+    body.append(T(W/2, 304, LEMA, 31, 840, "middle", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(W/2, 398, "COMPROMETIDOS", 94, 900, "middle", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="{W/2-190}" y="418" width="380" height="6" rx="3" fill="url(#gGold)"/>')
+    body.append(T(W/2, 478, "CON LOS CAFETEROS", 66, 900, "middle", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    body.append(candidate(262, 566, 402, "principal", d, 27, 21))
+    body.append(candidate(738, 566, 402, "suplente", d, 27, 21))
+    body.append(sprig(60, 1238, 0.62, 6))
+    body.append(sprig(940, 1230, 0.64, -6, True))
+    body.append(T(W/2, 1250, "JUNTOS POR EL CAFÉ DE NUESTRA REGIÓN", 28, 620, "middle", "800", C["gold_lt"], BOLD, 1, None, "txt"))
+    body.append(cta(W, 1362, 138, "TU VOTO, NUESTRO COMPROMISO", "MARCA LA PLANCHA 2"))
+    body.append(bean(70, 1455, 22, 18)); body.append(bean(930, 1455, 22, -18))
+    s.append(defs("".join(d))); s += body; s.append("</svg>")
+    save("01-afiche-principal.svg", "".join(s))
 
 
-def cand_circle(cx, cy, r, key, clip_id):
-    """Retrato circular enmarcado del candidato."""
-    cand = CANDIDATOS[key]
-    clip = f'<clipPath id="{clip_id}"><circle cx="{cx}" cy="{cy}" r="{r}"/></clipPath>'
-    g = (f'<g filter="url(#softSmall)"><circle cx="{cx}" cy="{cy}" r="{r+r*0.07:.1f}" fill="{C["white"]}"/></g>'
-         f'<image href="{IMG[cand["img"]]}" xlink:href="{IMG[cand["img"]]}" x="{cx-r:.1f}" y="{cy-r:.1f}" '
-         f'width="{2*r:.1f}" height="{2*r:.1f}" preserveAspectRatio="xMidYMid slice" clip-path="url(#{clip_id})"/>'
-         f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="url(#gGold)" stroke-width="{r*0.07:.1f}"/>')
-    return clip, g
-
-
-# --------------------------------------------------------------------------------------
-# 7. PIEZA: AFICHE DE PROPUESTAS  (1000 x 1500)
-# --------------------------------------------------------------------------------------
 def afiche_propuestas():
     W, H = 1000, 1500
-    clip_a, ca = cand_circle(360, 250, 78, "principal", "clipPropA")
-    clip_b, cb = cand_circle(560, 250, 78, "suplente", "clipPropB")
-    nev_clip, nev = nevado_medallion(W-120, 230, 60, "clipNevP", label=False)
-
-    rows = []
-    accent = [C["green"], C["gold"], C["red"], C["green_dk"], C["brown"]]
-    y0, rh, gap = 392, 188, 18
-    for i, (titulo, desc) in enumerate(PROPUESTAS):
+    d = ['<clipPath id="cpHead"><rect x="0" y="0" width="1000" height="372"/></clipPath>']
+    s = [svg(W, H)]
+    body = [f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>']
+    # cabecera fotografica
+    body.append(f'<g clip-path="url(#cpHead)">{bg_duo(W, 372)}</g>')
+    body.append(head(W, 64))
+    body.append(T(W/2, 158, "NUESTRAS PROPUESTAS", 54, 880, "middle", "900", C["cream"], HEAVY, 1, None, "txt"))
+    body.append(T(W/2, 200, SLOGAN, 23, 700, "middle", "700", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(badge(150, 290, 66))
+    body.append(candidate(770, 232, 120, "principal", d, role_size=16, show_name=False))
+    body.append(candidate(905, 232, 120, "suplente", d, role_size=16, show_name=False))
+    body.append(f'<rect x="0" y="372" width="{W}" height="6" fill="url(#gGold)"/>')
+    accent = [C["green"], C["gold_dk"], C["red"], C["green_dk"], C["coffee"]]
+    y0, rh, gap = 398, 192, 14
+    for i, (t, desc) in enumerate(PROPUESTAS):
         y = y0 + i * (rh + gap)
-        col = accent[i % len(accent)]
-        dl = multiline(desc, 58)
-        desc_t = "".join(
-            f'<text x="190" y="{y+96+j*30}" font-family="Arial, sans-serif" font-size="22" fill="{C["brown"]}">{esc(line)}</text>'
-            for j, line in enumerate(dl[:2]))
-        rows.append(f'''
-    <g filter="url(#softSmall)"><rect x="50" y="{y}" width="900" height="{rh}" rx="20" fill="#fff"/></g>
-    <rect x="50" y="{y}" width="16" height="{rh}" rx="8" fill="{col}"/>
-    {check_icon(120, y+rh/2, 42, col)}
-    <text x="190" y="{y+58}" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="32" fill="{C['espresso']}">{esc(titulo)}</text>
-    {desc_t}
-    <text x="905" y="{y+62}" text-anchor="end" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="64" fill="{col}" opacity="0.18">{i+1}</text>
-    ''')
-
-    extra = clip_a + clip_b + nev_clip
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    # cabecera
-    s.append(f'<rect x="0" y="0" width="{W}" height="360" fill="url(#gBrownBar)"/>')
-    s.append(sprig(0, 70, scale=0.7, angle=6))
-    s.append(sprig(W, 60, scale=0.72, angle=-6, flip=True))
-    s.append(f'<rect x="0" y="360" width="{W}" height="8" fill="url(#gGold)"/>')
-    s.append(f'<text x="{W/2}" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="22" letter-spacing="4" fill="{C["gold_lt"]}">{esc(ORG)}</text>')
-    s.append(f'<text x="{W/2}" y="140" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="58" fill="#fff">NUESTRAS PROPUESTAS</text>')
-    s.append(f'<text x="{W/2}" y="178" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="22" letter-spacing="3" fill="{C["gold_lt"]}">{esc(SLOGAN)}</text>')
-    s.append(nev)
-    s.append(ca); s.append(cb)
-    s.append(plancha_badge(150, 250, 70))
-    s.append(f'<text x="360" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="16" fill="{C["gold_lt"]}">PRINCIPAL</text>')
-    s.append(f'<text x="560" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="16" fill="{C["gold_lt"]}">SUPLENTE</text>')
-    s.append("".join(rows))
-    # footer
-    s.append(f'<rect x="0" y="1418" width="{W}" height="82" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="1470" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="#fff">VOTA PLANCHA 2</text>')
-    s.append('</svg>')
-    return save("02-afiche-propuestas.svg", "".join(s))
+        col = accent[i]
+        body.append(f'<g filter="url(#soft)"><rect x="48" y="{y}" width="904" height="{rh}" rx="20" fill="#fff"/></g>')
+        body.append(f'<rect x="48" y="{y}" width="16" height="{rh}" rx="8" fill="{col}"/>')
+        body.append(T(925, y + 70, str(i+1), 86, None, "end", "900", col, HEAVY, 0, 0.16))
+        body.append(check(122, y + rh/2, 44, col))
+        body.append(T(196, y + 64, t, 33, 660, "start", "900", C["espresso"], HEAVY))
+        for j, ln in enumerate(multiline(desc, 56)[:2]):
+            body.append(T(196, y + 104 + j*30, ln, 22, 700, "start", "700", C["brown"], BOLD))
+    body.append(cta(W, 1418, 82, "VOTA PLANCHA 2"))
+    s.append(defs("".join(d))); s += body; s.append("</svg>")
+    save("02-afiche-propuestas.svg", "".join(s))
 
 
-# --------------------------------------------------------------------------------------
-# 8. PIEZA: REDES - POST CUADRADO  (1080 x 1080)
-# --------------------------------------------------------------------------------------
-def redes_post():
-    W = H = 1080
-    clip_hero, img_hero = image_clipped("cafetales", 0, 0, W, 470, "clipPostHero", 0)
-    clip_a, ca = cand_circle(380, 560, 132, "principal", "clipPostA")
-    clip_b, cb = cand_circle(700, 560, 132, "suplente", "clipPostB")
-    extra = clip_hero + clip_a + clip_b
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    s.append(img_hero)
-    s.append(f'<rect x="0" y="0" width="{W}" height="470" fill="url(#gBrownTop)"/>')
-    s.append(f'<rect x="0" y="250" width="{W}" height="220" fill="url(#gBrownDown)"/>')
-    s.append(f'<rect x="0" y="60" width="{W}" height="64" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="102" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="24" letter-spacing="4" fill="#fff">{esc(ORG)}</text>')
-    s.append(sprig(10, 200, scale=0.7, angle=8))
-    s.append(sprig(W-10, 190, scale=0.72, angle=-6, flip=True))
-    s.append(f'<g filter="url(#soft)">{plancha_badge(W/2, 470, 104)}</g>')
-    s.append(ca); s.append(cb)
-    # nombres bajo retratos
-    for cx, key in [(380, "principal"), (700, "suplente")]:
-        cand = CANDIDATOS[key]; l1, l2 = two_lines(cand["nombre"])
-        rc = C["red"] if key == "principal" else C["green"]
-        s.append(f'<g transform="translate({cx},712)"><rect x="-78" y="-20" width="156" height="36" rx="18" fill="{rc}"/>'
-                 f'<text x="0" y="6" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="18" letter-spacing="1" fill="#fff">{esc(cand["rol"])}</text></g>')
-        s.append(f'<text x="{cx}" y="756" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="22" fill="{C["espresso"]}">{esc(l1)}</text>')
-        s.append(f'<text x="{cx}" y="784" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="22" fill="{C["espresso"]}">{esc(l2)}</text>')
-    # eslogan grande
-    s.append(f'<text x="{W/2}" y="868" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="50" fill="{C["espresso"]}">COMPROMETIDOS</text>')
-    s.append(f'<text x="{W/2}" y="924" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="46" fill="{C["red"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<rect x="{W/2-150}" y="884" width="300" height="5" rx="3" fill="url(#gGold)"/>')
-    s.append(f'<rect x="0" y="1000" width="{W}" height="80" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="994" width="{W}" height="6" fill="url(#gGold)"/>')
-    s.append(f'<text x="{W/2}" y="1052" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="30" fill="{C["gold_lt"]}">POR UNOS CAFETEROS PRÓSPEROS</text>')
-    s.append('</svg>')
-    return save("06-redes-post.svg", "".join(s))
-
-
-# --------------------------------------------------------------------------------------
-# 9. PIEZA: REDES - HISTORIA  (1080 x 1920)
-# --------------------------------------------------------------------------------------
-def redes_historia():
-    W, H = 1080, 1920
-    clip_hero, img_hero = image_clipped("cafetales", 0, 0, W, 760, "clipStHero", 0)
-    clip_a, ca = cand_circle(360, 980, 150, "principal", "clipStA")
-    clip_b, cb = cand_circle(720, 980, 150, "suplente", "clipStB")
-    nev_clip, nev = nevado_medallion(W/2, 1300, 86, "clipStNev")
-    extra = clip_hero + clip_a + clip_b + nev_clip
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    s.append(img_hero)
-    s.append(f'<rect x="0" y="0" width="{W}" height="760" fill="url(#gBrownTop)"/>')
-    s.append(f'<rect x="0" y="470" width="{W}" height="290" fill="url(#gBrownDown)"/>')
-    s.append(f'<rect x="0" y="120" width="{W}" height="74" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="28" letter-spacing="4" fill="#fff">{esc(ORG)}</text>')
-    s.append(f'<g filter="url(#soft)">{plancha_badge(W/2, 740, 130)}</g>')
-    s.append(ca); s.append(cb)
-    for cx, key in [(360, "principal"), (720, "suplente")]:
-        cand = CANDIDATOS[key]; l1, l2 = two_lines(cand["nombre"])
-        rc = C["red"] if key == "principal" else C["green"]
-        s.append(f'<g transform="translate({cx},1158)"><rect x="-86" y="-22" width="172" height="40" rx="20" fill="{rc}"/>'
-                 f'<text x="0" y="6" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="20" letter-spacing="1" fill="#fff">{esc(cand["rol"])}</text></g>')
-        s.append(f'<text x="{cx}" y="1206" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="24" fill="{C["espresso"]}">{esc(l1)}</text>')
-        s.append(f'<text x="{cx}" y="1238" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="24" fill="{C["espresso"]}">{esc(l2)}</text>')
-    s.append(nev)
-    s.append(f'<text x="{W/2}" y="1480" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="62" fill="{C["espresso"]}">COMPROMETIDOS</text>')
-    s.append(f'<text x="{W/2}" y="1548" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="54" fill="{C["red"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<rect x="{W/2-190}" y="1500" width="380" height="6" rx="3" fill="url(#gGold)"/>')
-    s.append(f'<rect x="0" y="1760" width="{W}" height="160" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="1752" width="{W}" height="8" fill="url(#gGold)"/>')
-    s.append(f'<text x="{W/2}" y="1832" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="44" fill="{C["gold_lt"]}">VOTA PLANCHA 2</text>')
-    s.append(f'<text x="{W/2}" y="1882" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="26" letter-spacing="3" fill="#fff">TU VOTO, NUESTRO COMPROMISO</text>')
-    s.append('</svg>')
-    return save("07-redes-historia.svg", "".join(s))
-
-
-# --------------------------------------------------------------------------------------
-# 10. PIEZA: PASACALLE  (2400 x 480, relación 5:1)
-# --------------------------------------------------------------------------------------
 def pasacalle():
     W, H = 2400, 480
-    clip_hero, img_hero = image_clipped("cafetales", 0, 0, W, H, "clipPasa", 0)
-    clip_a, ca = cand_circle(560, 235, 112, "principal", "clipPasaA")
-    clip_b, cb = cand_circle(810, 235, 112, "suplente", "clipPasaB")
-    extra = clip_hero + clip_a + clip_b
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(img_hero)
-    s.append(f'<rect width="{W}" height="{H}" fill="{C["espresso"]}" opacity="0.55"/>')
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gBrownTop)"/>')
-    # marco
-    s.append(f'<rect x="6" y="6" width="{W-12}" height="{H-12}" fill="none" stroke="url(#gGold)" stroke-width="6" rx="10"/>')
-    # ribbon org
-    s.append(f'<rect x="0" y="0" width="{W}" height="56" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="39" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="26" letter-spacing="6" fill="#fff">{esc(ORG)}</text>')
-    # badge
-    s.append(f'<g filter="url(#soft)">{plancha_badge(220, 250, 150)}</g>')
-    # candidatos
-    s.append(ca); s.append(cb)
-    for cx, key in [(560, "principal"), (810, "suplente")]:
-        cand = CANDIDATOS[key]; rc = C["red"] if key == "principal" else C["green"]
-        s.append(f'<g transform="translate({cx},382)"><rect x="-70" y="-19" width="140" height="34" rx="17" fill="{rc}"/>'
-                 f'<text x="0" y="5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="17" fill="#fff">{esc(cand["rol"])}</text></g>')
-    s.append(f'<text x="685" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="20" fill="{C["gold_lt"]}">JHON E. PRIETO  ·  NELSON F. OROZCO</text>')
-    # eslogan
-    s.append(f'<text x="1000" y="190" font-family="Arial, sans-serif" font-weight="800" font-size="34" letter-spacing="3" fill="{C["gold_lt"]}">POR UNOS CAFETEROS PRÓSPEROS</text>')
-    s.append(f'<text x="1000" y="280" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="90" fill="#fff">COMPROMETIDOS</text>')
-    s.append(f'<text x="1000" y="370" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="74" fill="{C["gold_lt"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<rect x="1000" y="218" width="560" height="6" rx="3" fill="url(#gGold)"/>')
-    s.append(sprig(2360, 120, scale=0.8, angle=-10, flip=True))
-    s.append('</svg>')
-    return save("03-pasacalle.svg", "".join(s))
+    d = []
+    body = [bg_duo(W, H)]
+    body.append(f'<rect x="0" y="0" width="{W}" height="50" fill="{C["espresso"]}" opacity="0.5"/>')
+    body.append(T(W/2, 35, ORG, 24, W*0.8, "middle", "800", C["gold_lt"], BOLD, 6))
+    body.append(f'<rect x="6" y="6" width="{W-12}" height="{H-12}" rx="12" fill="none" stroke="url(#gGold)" stroke-width="5"/>')
+    body.append(badge(205, 268, 140))
+    body.append(candidate(430, 80, 150, "principal", d, name_size=17, role_size=15))
+    body.append(candidate(640, 80, 150, "suplente", d, name_size=17, role_size=15))
+    bx = 880
+    body.append(T(bx, 158, LEMA, 32, 1440, "start", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(bx, 262, "COMPROMETIDOS", 90, 1480, "start", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="{bx}" y="284" width="560" height="6" rx="3" fill="url(#gGold)"/>')
+    body.append(T(bx, 350, "CON LOS CAFETEROS", 70, 1480, "start", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="0" y="440" width="{W}" height="40" fill="url(#gGold)"/>')
+    body.append(T(W/2, 468, "PLANCHA 2   ·   COMPROMETIDOS CON LOS CAFETEROS", 24, W*0.85, "middle", "900", C["espresso"], HEAVY, 2))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("03-pasacalle.svg", "".join(s))
 
 
-# --------------------------------------------------------------------------------------
-# 11. PIEZA: VALLA PUBLICITARIA  (2400 x 1200, relación 2:1)
-# --------------------------------------------------------------------------------------
-def valla(contacto="@PLANCHA2CAFETEROS", informes="INFORMES: 300 000 0000"):
+def valla():
     W, H = 2400, 1200
-    clip_hero, img_hero = image_clipped("cafetales", 0, 0, W, H, "clipValla", 0)
-    clip_a, ca = cand_circle(470, 560, 250, "principal", "clipVallaA")
-    clip_b, cb = cand_circle(990, 560, 250, "suplente", "clipVallaB")
-    nev_clip, nev = nevado_medallion(2230, 250, 92, "clipVallaNev", label=False)
-    extra = clip_hero + clip_a + clip_b + nev_clip
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(img_hero)
-    s.append(f'<rect width="{W}" height="{H}" fill="{C["espresso"]}" opacity="0.5"/>')
-    s.append(f'<rect x="0" y="0" width="{W}" height="{H}" fill="url(#gBrownDown)" opacity="0.7"/>')
-    # ribbon
-    s.append(f'<rect x="0" y="0" width="{W}" height="96" fill="url(#gRed)"/>')
-    s.append(f'<text x="80" y="64" font-family="Arial, sans-serif" font-weight="800" font-size="44" letter-spacing="4" fill="#fff">{esc(ORG)}</text>')
-    s.append(f'<rect x="0" y="96" width="{W}" height="9" fill="url(#gGold)"/>')
-    s.append(nev)
-    # candidatos
-    s.append(ca); s.append(cb)
-    for cx, key in [(470, "principal"), (990, "suplente")]:
-        cand = CANDIDATOS[key]; l1, l2 = two_lines(cand["nombre"]); rc = C["red"] if key == "principal" else C["green"]
-        s.append(f'<g transform="translate({cx},858)"><rect x="-130" y="-32" width="260" height="58" rx="29" fill="{rc}"/>'
-                 f'<text x="0" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="30" letter-spacing="1" fill="#fff">{esc(cand["rol"])}</text></g>')
-        s.append(f'<text x="{cx}" y="930" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="#fff">{esc(l1)}</text>')
-        s.append(f'<text x="{cx}" y="972" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="#fff">{esc(l2)}</text>')
-    # badge entre franja y candidatos
-    s.append(f'<g filter="url(#soft)">{plancha_badge(730, 250, 150)}</g>')
-    # bloque derecho: eslogan + ejes
-    bx = 1320
-    s.append(f'<text x="{bx}" y="320" font-family="Arial, sans-serif" font-weight="800" font-size="42" letter-spacing="2" fill="{C["gold_lt"]}">POR UNOS CAFETEROS PRÓSPEROS</text>')
-    s.append(f'<text x="{bx}" y="430" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="120" fill="#fff">COMPROMETIDOS</text>')
-    s.append(f'<text x="{bx}" y="540" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="96" fill="{C["gold_lt"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<rect x="{bx}" y="360" width="760" height="8" rx="4" fill="url(#gGold)"/>')
-    ejes = ["Vías para el campo", "Renovación del café", "Beneficiaderos", "Mujer cafetera", "Defensoría del cafetero"]
+    d = []
+    body = [bg_duo(W, H), head(W, 92)]
+    body.append(candidate(470, 280, 470, "principal", d, name_size=36, role_size=28))
+    body.append(candidate(990, 280, 470, "suplente", d, name_size=36, role_size=28))
+    body.append(badge(2180, 252, 150))
+    bx = 1300
+    body.append(T(bx, 300, LEMA, 42, 1040, "start", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(bx, 420, "COMPROMETIDOS", 104, 1050, "start", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="{bx}" y="444" width="640" height="7" rx="3" fill="url(#gGold)"/>')
+    body.append(T(bx, 520, "CON LOS CAFETEROS", 80, 1050, "start", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    ejes = ["Vías para el campo", "Renovación del café", "Beneficiaderos",
+            "Proyectos para la mujer cafetera", "Defensoría del cafetero"]
     for i, e in enumerate(ejes):
-        ey = 640 + i * 78
-        s.append(check_icon(bx + 26, ey, 30, C["gold"]))
-        s.append(f'<text x="{bx+78}" y="{ey+12}" font-family="Arial, sans-serif" font-weight="700" font-size="38" fill="#fff">{esc(e)}</text>')
-    # franja inferior contacto / CTA
-    s.append(f'<rect x="0" y="1080" width="{W}" height="120" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="1072" width="{W}" height="8" fill="url(#gGold)"/>')
-    s.append(f'<text x="80" y="1158" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="64" fill="{C["gold_lt"]}">VOTA PLANCHA 2</text>')
-    s.append(f'<text x="{W-80}" y="1140" text-anchor="end" font-family="Arial, sans-serif" font-weight="700" font-size="36" fill="#fff">{esc(informes)}</text>')
-    s.append(f'<text x="{W-80}" y="1182" text-anchor="end" font-family="Arial, sans-serif" font-weight="700" font-size="32" fill="{C["gold_lt"]}">{esc(contacto)}</text>')
-    s.append('</svg>')
-    return save("04-valla.svg", "".join(s))
+        ey = 642 + i * 80
+        body.append(check(bx + 28, ey, 30, C["gold"]))
+        body.append(T(bx + 80, ey + 12, e, 38, 1000, "start", "700", "#fff", BOLD, 0, None, "txt"))
+    body.append(f'<rect x="0" y="1080" width="{W}" height="120" fill="url(#gGold)"/>')
+    body.append(T(W/2, 1158, "VOTA PLANCHA 2   ·   COMPROMETIDOS CON LOS CAFETEROS", 46, W*0.92, "middle", "900", C["espresso"], HEAVY, 1))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("04-valla.svg", "".join(s))
 
 
-# --------------------------------------------------------------------------------------
-# 12. PIEZA: TARJETA - FRENTE  (1050 x 600, 3.5x2 in @300dpi)
-# --------------------------------------------------------------------------------------
 def tarjeta_frente():
     W, H = 1050, 600
-    clip_a, ca = cand_circle(760, 200, 92, "principal", "clipTfA")
-    clip_b, cb = cand_circle(940, 200, 92, "suplente", "clipTfB")
-    extra = clip_a + clip_b
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    s.append(f'<rect x="0" y="0" width="{W}" height="14" fill="url(#gRed)"/>')
-    s.append(f'<rect x="0" y="{H-14}" width="{W}" height="14" fill="url(#gGreen)"/>')
-    s.append(sprig(-10, 150, scale=0.55, angle=10))
-    s.append(f'<g filter="url(#soft)">{plancha_badge(170, 270, 128)}</g>')
-    s.append(ca); s.append(cb)
-    s.append(f'<text x="760" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="16" fill="{C["red"]}">PRINCIPAL</text>')
-    s.append(f'<text x="940" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="16" fill="{C["green_dk"]}">SUPLENTE</text>')
-    s.append(f'<text x="370" y="120" font-family="Arial, sans-serif" font-weight="700" font-size="18" letter-spacing="2" fill="{C["green_dk"]}">{esc(ORG)}</text>')
-    s.append(f'<text x="370" y="200" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="58" fill="{C["espresso"]}">COMPROMETIDOS</text>')
-    s.append(f'<text x="370" y="250" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="40" fill="{C["red"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<rect x="370" y="222" width="300" height="5" rx="3" fill="url(#gGold)"/>')
-    s.append(f'<text x="525" y="430" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="26" fill="{C["espresso"]}">JHON ESNEIDER PRIETO PRIETO</text>')
-    s.append(f'<text x="525" y="470" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="26" fill="{C["espresso"]}">NELSON FERNED OROZCO CASTAÑO</text>')
-    s.append(f'<text x="525" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="24" letter-spacing="3" fill="{C["green_dk"]}">POR UNOS CAFETEROS PRÓSPEROS</text>')
-    s.append('</svg>')
-    return save("05a-tarjeta-frente.svg", "".join(s))
+    d = []
+    body = [f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>']
+    body.append(f'<rect x="0" y="0" width="{W}" height="12" fill="url(#gRed)"/>')
+    body.append(f'<rect x="0" y="{H-12}" width="{W}" height="12" fill="url(#gGreen)"/>')
+    body.append(f'<rect x="20" y="20" width="{W-40}" height="{H-40}" rx="16" fill="none" stroke="{C["gold"]}" stroke-width="2"/>')
+    body.append(sprig(-8, 150, 0.5, 10))
+    body.append(badge(165, 250, 112))
+    body.append(T(60, 396, "COMPROMETIDOS", 42, 560, "start", "900", C["espresso"], HEAVY))
+    body.append(f'<rect x="62" y="412" width="250" height="5" rx="2" fill="url(#gGold)"/>')
+    body.append(T(60, 446, "CON LOS CAFETEROS", 30, 560, "start", "900", C["red"], HEAVY))
+    body.append(T(60, 492, ORG, 16, 520, "start", "700", C["green_dk"], BOLD, 1))
+    body.append(T(60, 520, LEMA, 18, 520, "start", "700", C["brown"], BOLD, 1))
+    body.append(candidate(700, 70, 170, "principal", d, name_size=18, role_size=15, dark_text=True, spotlight=False))
+    body.append(candidate(905, 70, 170, "suplente", d, name_size=18, role_size=15, dark_text=True, spotlight=False))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("05a-tarjeta-frente.svg", "".join(s))
 
 
-# --------------------------------------------------------------------------------------
-# 13. PIEZA: TARJETA - RESPALDO  (1050 x 600)
-# --------------------------------------------------------------------------------------
-def tarjeta_respaldo(telefono="300 000 0000", correo="contacto@plancha2.co", redes="@Plancha2Cafeteros"):
+def tarjeta_respaldo():
     W, H = 1050, 600
-    s = [svg_open(W, H), build_defs("")]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="0" width="{W}" height="10" fill="url(#gGold)"/>')
-    s.append(f'<rect x="0" y="{H-10}" width="{W}" height="10" fill="url(#gGold)"/>')
-    s.append(sprig(W+10, 130, scale=0.6, angle=-10, flip=True))
-    s.append(f'<text x="60" y="90" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="40" fill="{C["gold_lt"]}">NUESTRAS PROPUESTAS</text>')
-    ejes = ["Vías para el campo", "Incentivos a la renovación del café", "Mejores beneficiaderos",
-            "Proyectos productivos para la mujer", "Defensoría del cafetero"]
+    body = [f'<rect width="{W}" height="{H}" fill="url(#gBrown)"/>']
+    body.append(f'<rect x="20" y="20" width="{W-40}" height="{H-40}" rx="16" fill="none" stroke="{C["gold"]}" stroke-width="2"/>')
+    body.append(sprig(W+8, 130, 0.5, -10, True))
+    body.append(T(60, 96, "NUESTRAS PROPUESTAS", 40, 720, "start", "900", C["gold_lt"], HEAVY, 1))
+    ejes = ["Vías para el campo cafetero", "Incentivos a la renovación del café",
+            "Mejores beneficiaderos", "Proyectos productivos para la mujer", "Defensoría del cafetero"]
     for i, e in enumerate(ejes):
-        ey = 160 + i * 62
-        s.append(check_icon(85, ey, 22, C["gold"]))
-        s.append(f'<text x="125" y="{ey+9}" font-family="Arial, sans-serif" font-weight="700" font-size="26" fill="#fff">{esc(e)}</text>')
-    s.append(f'<g filter="url(#softSmall)">{plancha_badge(880, 250, 120)}</g>')
-    # contacto
-    s.append(f'<rect x="60" y="500" width="930" height="2" fill="{C["gold"]}" opacity="0.5"/>')
-    s.append(f'<text x="60" y="552" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="{C["gold_lt"]}">Tel: {esc(telefono)}   ·   {esc(correo)}   ·   {esc(redes)}</text>')
-    s.append('</svg>')
-    return save("05b-tarjeta-respaldo.svg", "".join(s))
+        ey = 168 + i * 62
+        body.append(check(86, ey, 22, C["gold"]))
+        body.append(T(126, ey + 9, e, 26, 640, "start", "700", "#fff", BOLD))
+    body.append(badge(885, 250, 115))
+    body.append(f'<rect x="0" y="540" width="{W}" height="60" fill="url(#gGold)" opacity="0.95"/>')
+    body.append(T(W/2, 580, "PLANCHA 2   ·   COMPROMETIDOS CON LOS CAFETEROS", 24, W*0.9, "middle", "900", C["espresso"], HEAVY, 1))
+    s = [svg(W, H), defs("")] + body + ["</svg>"]
+    save("05b-tarjeta-respaldo.svg", "".join(s))
 
 
-# --------------------------------------------------------------------------------------
-# 14. PIEZA: VOLANTE  (1000 x 1414, A)
-# --------------------------------------------------------------------------------------
+def redes_post():
+    W = H = 1080
+    d = []
+    body = [bg_duo(W, H), head(W, 64)]
+    body.append(T(W/2, 158, LEMA, 28, 900, "middle", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(W/2, 246, "COMPROMETIDOS", 72, 1000, "middle", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="{W/2-160}" y="266" width="320" height="6" rx="3" fill="url(#gGold)"/>')
+    body.append(T(W/2, 312, "CON LOS CAFETEROS", 54, 1000, "middle", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    body.append(badge(540, 430, 96))
+    body.append(candidate(322, 540, 320, "principal", d, name_size=24, role_size=18))
+    body.append(candidate(758, 540, 320, "suplente", d, name_size=24, role_size=18))
+    body.append(cta(W, 1000, 80, "VOTA PLANCHA 2"))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("06-redes-post.svg", "".join(s))
+
+
+def redes_historia():
+    W, H = 1080, 1920
+    d = []
+    body = [bg_duo(W, H), head(W, 74)]
+    body.append(T(W/2, 234, LEMA, 30, 940, "middle", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(W/2, 330, "COMPROMETIDOS", 78, 1000, "middle", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="{W/2-180}" y="352" width="360" height="6" rx="3" fill="url(#gGold)"/>')
+    body.append(T(W/2, 404, "CON LOS CAFETEROS", 60, 1000, "middle", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    body.append(badge(540, 560, 124))
+    body.append(candidate(360, 720, 360, "principal", d, name_size=27, role_size=21))
+    body.append(candidate(720, 720, 360, "suplente", d, name_size=27, role_size=21))
+    ejes = ["Vías para el campo", "Renovación del café", "Beneficiaderos",
+            "Mujer cafetera", "Defensoría del cafetero"]
+    for i, e in enumerate(ejes):
+        ey = 1320 + i * 80
+        body.append(check(210, ey, 26, C["gold"]))
+        body.append(T(258, ey + 10, e, 34, 700, "start", "700", "#fff", BOLD, 0, None, "txt"))
+    body.append(cta(W, 1740, 180, "VOTA PLANCHA 2", "TU VOTO, NUESTRO COMPROMISO"))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("07-redes-historia.svg", "".join(s))
+
+
 def volante():
     W, H = 1000, 1414
-    clip_hero, img_hero = image_clipped("cafetales", 0, 74, W, 340, "clipVolHero", 0)
-    clip_a, ca = cand_circle(360, 400, 96, "principal", "clipVolA")
-    clip_b, cb = cand_circle(640, 400, 96, "suplente", "clipVolB")
-    extra = clip_hero + clip_a + clip_b
-    s = [svg_open(W, H), build_defs(extra)]
-    s.append(f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>')
-    s.append(img_hero)
-    s.append(f'<rect x="0" y="74" width="{W}" height="340" fill="url(#gBrownTop)"/>')
-    s.append(f'<rect x="0" y="250" width="{W}" height="164" fill="url(#gBrownDown)"/>')
-    s.append(f'<rect x="0" y="0" width="{W}" height="74" fill="url(#gRed)"/>')
-    s.append(f'<text x="{W/2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="25" letter-spacing="4" fill="#fff">{esc(ORG)}</text>')
-    s.append(f'<text x="{W/2}" y="170" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="52" fill="#fff">COMPROMETIDOS</text>')
-    s.append(f'<text x="{W/2}" y="222" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="40" fill="{C["gold_lt"]}">CON LOS CAFETEROS</text>')
-    s.append(f'<g filter="url(#softSmall)">{plancha_badge(845, 150, 70)}</g>')
-    # candidatos
-    s.append(ca); s.append(cb)
-    for cx, key in [(360, "principal"), (640, "suplente")]:
-        cand = CANDIDATOS[key]; l1, l2 = two_lines(cand["nombre"]); rc = C["red"] if key == "principal" else C["green"]
-        s.append(f'<g transform="translate({cx},516)"><rect x="-66" y="-18" width="132" height="32" rx="16" fill="{rc}"/>'
-                 f'<text x="0" y="5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="15" fill="#fff">{esc(cand["rol"])}</text></g>')
-        s.append(f'<text x="{cx}" y="560" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="19" fill="{C["espresso"]}">{esc(l1)}</text>')
-        s.append(f'<text x="{cx}" y="585" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="19" fill="{C["espresso"]}">{esc(l2)}</text>')
-    s.append(f'<text x="{W/2}" y="648" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="{C["green_dk"]}">NUESTRAS PROPUESTAS</text>')
-    # lista compacta
-    y0, rh, gap = 686, 118, 14
-    accent = [C["green"], C["gold"], C["red"], C["green_dk"], C["brown"]]
-    for i, (titulo, desc) in enumerate(PROPUESTAS):
+    d = ['<clipPath id="cpVol"><rect x="0" y="0" width="1000" height="372"/></clipPath>']
+    body = [f'<rect width="{W}" height="{H}" fill="url(#gSky)"/>']
+    body.append(f'<g clip-path="url(#cpVol)">{bg_duo(W, 372)}</g>')
+    body.append(head(W, 62))
+    body.append(T(W/2, 150, LEMA, 26, 880, "middle", "800", C["gold_lt"], BOLD, 2, None, "txt"))
+    body.append(T(W/2, 232, "COMPROMETIDOS", 60, 900, "middle", "900", C["cream"], HEAVY, 0, None, "txt"))
+    body.append(T(W/2, 286, "CON LOS CAFETEROS", 44, 900, "middle", "900", C["gold_lt"], HEAVY, 0, None, "txt"))
+    body.append(f'<rect x="0" y="372" width="{W}" height="6" fill="url(#gGold)"/>')
+    body.append(candidate(310, 250, 180, "principal", d, name_size=20, role_size=16, dark_text=True))
+    body.append(candidate(690, 250, 180, "suplente", d, name_size=20, role_size=16, dark_text=True))
+    body.append(T(W/2, 612, "NUESTRAS PROPUESTAS", 34, 700, "middle", "900", C["espresso"], HEAVY, 1))
+    accent = [C["green"], C["gold_dk"], C["red"], C["green_dk"], C["coffee"]]
+    y0, rh, gap = 642, 124, 12
+    for i, (t, desc) in enumerate(PROPUESTAS):
         y = y0 + i * (rh + gap)
-        col = accent[i % len(accent)]
-        dl = multiline(desc, 64)
-        s.append(f'<g filter="url(#softSmall)"><rect x="50" y="{y}" width="900" height="{rh}" rx="16" fill="#fff"/></g>')
-        s.append(f'<rect x="50" y="{y}" width="14" height="{rh}" rx="7" fill="{col}"/>')
-        s.append(check_icon(112, y + rh / 2, 34, col))
-        s.append(f'<text x="168" y="{y+50}" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="26" fill="{C["espresso"]}">{esc(titulo)}</text>')
-        for j, line in enumerate(dl[:2]):
-            s.append(f'<text x="168" y="{y+84+j*26}" font-family="Arial, sans-serif" font-size="19" fill="{C["brown"]}">{esc(line)}</text>')
-    s.append(f'<rect x="0" y="1330" width="{W}" height="84" fill="url(#gBrownBar)"/>')
-    s.append(f'<rect x="0" y="1324" width="{W}" height="6" fill="url(#gGold)"/>')
-    s.append(f'<text x="{W/2}" y="1385" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="38" fill="{C["gold_lt"]}">VOTA PLANCHA 2</text>')
-    s.append('</svg>')
-    return save("08-volante.svg", "".join(s))
+        col = accent[i]
+        body.append(f'<g filter="url(#soft)"><rect x="48" y="{y}" width="904" height="{rh}" rx="16" fill="#fff"/></g>')
+        body.append(f'<rect x="48" y="{y}" width="14" height="{rh}" rx="7" fill="{col}"/>')
+        body.append(check(112, y + rh/2, 34, col))
+        body.append(T(168, y + 50, t, 27, 720, "start", "900", C["espresso"], HEAVY))
+        for j, ln in enumerate(multiline(desc, 62)[:2]):
+            body.append(T(168, y + 86 + j*26, ln, 19, 740, "start", "700", C["brown"], BOLD))
+    body.append(cta(W, 1330, 84, "VOTA PLANCHA 2"))
+    s = [svg(W, H), defs("".join(d))] + body + ["</svg>"]
+    save("08-volante.svg", "".join(s))
+
+
+def build_exporter():
+    """Crea exportar-png.html autonomo: incrusta las piezas y las descarga en PNG (cliente)."""
+    import re
+    piezas = [
+        ("01-afiche-principal", "Afiche principal"),
+        ("02-afiche-propuestas", "Afiche de propuestas"),
+        ("03-pasacalle", "Pasacalle"),
+        ("04-valla", "Valla publicitaria"),
+        ("05a-tarjeta-frente", "Tarjeta — frente"),
+        ("05b-tarjeta-respaldo", "Tarjeta — respaldo"),
+        ("06-redes-post", "Post de redes"),
+        ("07-redes-historia", "Historia de redes"),
+        ("08-volante", "Volante"),
+    ]
+    items = []
+    for fn, title in piezas:
+        svg_txt = open(os.path.join(OUT, fn + ".svg"), "r", encoding="utf-8").read()
+        m = re.search(r'width="(\d+)"\s+height="(\d+)"', svg_txt)
+        w, h = (int(m.group(1)), int(m.group(2))) if m else (1000, 1000)
+        b64 = base64.b64encode(svg_txt.encode("utf-8")).decode("ascii")
+        items.append({"n": fn, "t": title, "w": w, "h": h, "b": b64})
+    import json
+    data = json.dumps(items)
+    html_doc = '''<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exportar campaña a PNG · Plancha 2</title>
+<style>
+:root{--esp:#22130C;--brown:#43271A;--gold:#E3A53C;--goldl:#F6D488;--red:#C32026;--green:#2F7D34;--cream:#FBF3E2}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{background:var(--cream);color:var(--esp)}
+header{background:linear-gradient(135deg,var(--brown),var(--esp));color:#fff;padding:30px 20px;text-align:center;border-bottom:7px solid var(--gold)}
+header h1{font-size:clamp(22px,4vw,34px)}header p{color:var(--goldl);margin-top:6px}
+.bar{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.12);padding:14px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar label{font-weight:700}
+select,button{font-size:15px;padding:10px 16px;border-radius:10px;border:2px solid var(--gold);background:#fff;font-weight:700;cursor:pointer}
+button.primary{background:var(--green);color:#fff;border-color:var(--green)}
+button.all{background:var(--red);color:#fff;border-color:var(--red)}
+.wrap{max-width:1150px;margin:0 auto;padding:26px 18px 70px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 7px 22px rgba(0,0,0,.12);display:flex;flex-direction:column}
+.thumb{background:repeating-conic-gradient(#eee 0 25%,#f8f8f8 0 50%) 50%/20px 20px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:170px}
+.thumb img{max-width:100%;max-height:240px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.meta{padding:14px 16px}.meta h3{color:var(--brown);font-size:17px}.meta .d{font-size:12px;color:#8a7b66;margin:3px 0 10px}
+.note{background:#fff;border-left:6px solid var(--gold);padding:16px 20px;border-radius:10px;margin:20px 0;line-height:1.55;font-size:14px}
+.status{text-align:center;padding:10px;font-weight:700;color:var(--green)}
+</style></head><body>
+<header><h1>Descargar la campaña en PNG</h1><p>Plancha 2 · Comprometidos con los Cafeteros</p></header>
+<div class="bar">
+  <label>Resolución:</label>
+  <select id="scale"><option value="1">1x (rápido)</option><option value="2" selected>2x (recomendado imprenta)</option><option value="3">3x (máxima)</option></select>
+  <button class="all" onclick="todas()">⬇ Descargar TODAS en PNG</button>
+  <span id="status" class="status"></span>
+</div>
+<div class="wrap">
+  <div class="note"><b>Cómo usar:</b> elige la resolución y pulsa <b>Descargar TODAS</b>, o el botón PNG de cada pieza.
+  Los archivos se guardan en tu carpeta de Descargas. Para imprenta de gran formato (vallas, pasacalles) lo ideal
+  es entregar el <b>.svg</b> directamente, ya que es vectorial y no pierde calidad a ningún tamaño.</div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const PIEZAS=__DATA__;
+function durl(p){return 'data:image/svg+xml;base64,'+p.b;}
+function load(p){return new Promise((ok,err)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>err(new Error('no carga '+p.n));i.src=durl(p);});}
+async function toPng(p,scale){const img=await load(p);const cv=document.createElement('canvas');cv.width=Math.round(p.w*scale);cv.height=Math.round(p.h*scale);const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,cv.width,cv.height);return await new Promise((res,rej)=>cv.toBlob(b=>b?res(b):rej(new Error('toBlob')),'image/png'));}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(a._b=blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+async function una(i){const p=PIEZAS[i];const s=+document.getElementById('scale').value;try{const b=await toPng(p,s);dl(b,p.n+'.png');}catch(e){alert('No se pudo exportar '+p.n+': '+e.message+'\\nAbre el .svg directamente y guárdalo como imagen.');}}
+async function todas(){const s=+document.getElementById('scale').value;const st=document.getElementById('status');for(let i=0;i<PIEZAS.length;i++){st.textContent='Generando '+(i+1)+'/'+PIEZAS.length+'…';try{const b=await toPng(PIEZAS[i],s);dl(b,PIEZAS[i].n+'.png');}catch(e){console.error(e);}await new Promise(r=>setTimeout(r,600));}st.textContent='¡Listo! Revisa tu carpeta de Descargas.';}
+const g=document.getElementById('grid');
+PIEZAS.forEach((p,i)=>{g.insertAdjacentHTML('beforeend',`<div class="card"><div class="thumb"><img src="${durl(p)}" alt="${p.t}"></div><div class="meta"><h3>${p.t}</h3><div class="d">${p.w}×${p.h}px (vector)</div><button class="primary" onclick="una(${i})">⬇ Descargar PNG</button></div></div>`);});
+</script></body></html>'''
+    html_doc = html_doc.replace("__DATA__", data)
+    with open(os.path.join(OUT, "exportar-png.html"), "w", encoding="utf-8") as f:
+        f.write(html_doc)
+    print(f"  OK exportar-png.html ({len(html_doc)//1024} KB)")
 
 
 if __name__ == "__main__":
@@ -669,4 +566,5 @@ if __name__ == "__main__":
     redes_post()
     redes_historia()
     volante()
+    build_exporter()
     print("Listo.")
